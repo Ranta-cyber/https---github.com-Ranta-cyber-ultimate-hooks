@@ -1,6 +1,7 @@
   
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
+//import service from './services/service'
 
 
 const useField = (type) => {
@@ -10,24 +11,45 @@ const useField = (type) => {
     setValue(event.target.value)
   }
 
+  const onReset = () => {
+    setValue('')
+  }
+
   return {
     type,
     value,
-    onChange
+    onChange,
+    onReset
   }
 }
 
 const useResource = (baseUrl) => {
   const [resources, setResources] = useState([])
 
-  // ...
+    useEffect( () => {
+      axios
+        .get(baseUrl)
+        .then(response => { 
+          setResources(response.data)
+      })   
+    },[baseUrl])
+  
 
   const create = (resource) => {
-    // ...
+    const response = axios.post(baseUrl, resource)
+  }
+
+  const read = () => {
+    axios
+        .get(baseUrl)
+        .then(response => { 
+          setResources(response.data)
+      }) 
   }
 
   const service = {
-    create
+    create,
+    read
   }
 
   return [
@@ -46,11 +68,18 @@ const App = () => {
   const handleNoteSubmit = (event) => {
     event.preventDefault()
     noteService.create({ content: content.value })
+    content.onReset()
+    noteService.read()
+    
   }
  
   const handlePersonSubmit = (event) => {
     event.preventDefault()
     personService.create({ name: name.value, number: number.value})
+    name.onReset()
+    number.onReset()
+    personService.read()
+    
   }
 
   return (
